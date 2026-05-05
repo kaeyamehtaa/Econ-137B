@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risk & Diversification · CFO Challenge · Econ 137B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & BASE ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0D1B2A;
+  --navy2: #152438;
+  --gold: #C9963A;
+  --gold-light: #F2C55A;
+  --gold-pale: #FDF3DC;
+  --cream: #F8F4ED;
+  --white: #FFFFFF;
+  --red: #C94A38;
+  --green: #2A7A52;
+  --amber: #B87A10;
+  --blue: #1A5FAB;
+  --border: rgba(13,27,42,0.1);
+  --border-strong: rgba(13,27,42,0.2);
+  --text: #111827;
+  --text-2: #4B5563;
+  --text-3: #9CA3AF;
+  --surface: #F1EDE5;
+  --surface2: #FFFFFF;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ─── LAYOUT ─── */
+.app-shell { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 240px;
+  background: var(--navy);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.brand-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+
+.brand-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.brand-sub {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 0.35rem;
+  font-family: 'DM Mono', monospace;
+}
+
+.sidebar-nav {
+  padding: 0.75rem 0;
+  flex: 1;
+}
+
+.nav-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.3);
+  padding: 0.75rem 1.25rem 0.35rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  user-select: none;
+  text-decoration: none;
+}
+
+.nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.05); }
+.nav-item.active { color: var(--gold-light); border-left-color: var(--gold); background: rgba(201,150,58,0.08); }
+
+.nav-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.nav-item.active .nav-icon { opacity: 1; }
+
+.sidebar-timer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.timer-display {
+  font-family: 'DM Mono', monospace;
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--gold-light);
+  text-align: center;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin-bottom: 0.6rem;
+}
+
+.timer-display.running { color: #fff; }
+.timer-display.warning { color: #f87171; animation: blink 0.7s infinite; }
+.timer-display.done { color: #f87171; }
+
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+.timer-buttons { display: flex; gap: 0.4rem; }
+
+.timer-btn {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.timer-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.timer-btn.primary { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 600; }
+.timer-btn.primary:hover { background: var(--gold-light); }
+.timer-btn.warn { background: rgba(201,74,56,0.7); border-color: #C94A38; color: #fff; }
+
+.timer-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.timer-presets { display: flex; gap: 0.3rem; margin-top: 0.4rem; }
+.timer-preset {
+  flex: 1; padding: 0.3rem; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px; background: transparent; color: rgba(255,255,255,0.4);
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; cursor: pointer;
+  transition: all 0.15s; text-align: center;
+}
+.timer-preset:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  margin-left: 240px;
+  flex: 1;
+  min-height: 100vh;
+}
+
+.page-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem 2rem 1.25rem;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-header-left {}
+
+.eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+
+.page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+  color: var(--navy);
+  line-height: 1.15;
+}
+
+.page-subtitle { font-size: 0.8rem; color: var(--text-2); margin-top: 0.2rem; }
+
+.content { padding: 2rem; max-width: 1100px; }
+
+/* ─── SECTION ─── */
+.section { display: none; }
+.section.active { display: block; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.25rem;
+}
+
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.1rem;
+  gap: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--navy);
+  font-family: 'DM Mono', monospace;
+}
+
+/* ─── BADGE ─── */
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: 0.65rem; font-weight: 600;
+  font-family: 'DM Mono', monospace;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.badge-green { background: #D1FAE5; color: #065F46; }
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.badge-amber { background: #FEF3C7; color: #78350F; }
+.badge-navy { background: var(--navy); color: var(--gold-light); }
+.badge-blue { background: #DBEAFE; color: #1E40AF; }
+
+/* ─── STAT GRID ─── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat-box {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 1rem 0.875rem;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.stat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.stat-val.positive { color: var(--green); }
+.stat-val.negative { color: var(--red); }
+
+.stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  margin-top: 0.3rem;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ─── GRID LAYOUTS ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+
+@media (max-width: 900px) {
+  .sidebar { width: 200px; }
+  .main { margin-left: 200px; }
+  .two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 700px) {
+  .sidebar { transform: translateX(-100%); width: 240px; }
+  .sidebar.open { transform: none; }
+  .main { margin-left: 0; }
+  .content { padding: 1rem; }
+}
+
+/* ─── IPS RULE ─── */
+.ips-rule {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.ips-rule:last-child { border-bottom: none; padding-bottom: 0; }
+
+.rule-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+.rule-yes { background: #D1FAE5; color: #065F46; }
+.rule-no { background: #FEE2E2; color: #991B1B; }
+
+.rule-body strong { font-size: 0.82rem; color: var(--navy); display: block; }
+.rule-body span { font-size: 0.78rem; color: var(--text-2); }
+
+/* ─── STRATEGY TABS ─── */
+.group-tabs {
+  display: flex; gap: 0.5rem; margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.group-tab {
+  padding: 0.55rem 1rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--white);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-2);
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.group-tab:hover { border-color: var(--navy); color: var(--navy); }
+.group-tab.active { background: var(--navy); border-color: var(--navy); color: var(--gold-light); }
+
+.group-letter {
+  font-size: 1rem; font-weight: 500; line-height: 1;
+}
+
+/* ─── SHARPE BAR ─── */
+.sharpe-bar-wrap { margin: 0.5rem 0 1rem; }
+.sharpe-bar-meta {
+  display: flex; justify-content: space-between;
+  font-size: 0.7rem; color: var(--text-3);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 0.35rem;
+}
+.sharpe-track { height: 8px; background: var(--surface); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.sharpe-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+/* ─── DIMENSION GRID ─── */
+.dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.dim-box {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 0.875rem;
+  border: 1px solid var(--border);
+}
+.dim-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+  margin-bottom: 0.3rem;
+}
+.dim-val { font-size: 0.82rem; color: var(--text); line-height: 1.4; }
+.dim-val.pos { color: var(--green); font-weight: 600; }
+.dim-val.neg { color: var(--red); font-weight: 600; }
+
+/* ─── THESIS BOXES ─── */
+.thesis-bull {
+  background: #F0FDF4; border: 1px solid #BBF7D0;
+  border-left: 3px solid var(--green);
+  border-radius: 0 8px 8px 0;
+  padding: 0.875rem 1rem;
+  font-size: 0.82rem;
+  color: #14532D;
+  margin-top: 0.75rem;
+}
+.thesis-trap {
+  background: #FFF1F2; border: 1px solid #FECDD3;
+  border-left: 3px solid var(--red);
+  border-radius: 0 8px 8px 0;
+  padding: 0.875rem 1rem;
+  font-size: 0.82rem;
+  color: #881337;
+  margin-top: 0.5rem;
+}
+.thesis-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+/* ─── CALCULATOR ─── */
+.calc-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+.input-group label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-2);
+  margin-bottom: 0.4rem;
+}
+.input-group input {
+  width: 100%;
+  padding: 0.6rem 0.875rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--white);
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  color: var(--navy);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-group input:focus { border-color: var(--gold); }
+
+.results-panel {
+  background: var(--navy);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: #fff;
+}
+.results-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.result-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-size: 0.84rem;
+}
+.result-row:last-child { border-bottom: none; }
+.result-key { color: rgba(255,255,255,0.55); }
+.result-val { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--gold-light); }
+.result-val.good { color: #6EE7B7; }
+.result-val.bad { color: #FCA5A5; }
+.result-val.neutral { color: var(--gold-light); }
+
+/* ─── PITCH BUILDER ─── */
+.pitch-element-card {
+  display: flex; gap: 1rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.875rem;
+  box-shadow: var(--shadow);
+}
+.pe-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--navy);
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.pe-content { flex: 1; }
+.pe-title { font-weight: 600; font-size: 0.88rem; color: var(--navy); }
+.pe-hint { font-size: 0.78rem; color: var(--text-2); margin: 0.25rem 0 0.5rem; }
+.pe-field {
+  width: 100%;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 0.6rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: var(--surface);
+  resize: vertical;
+  min-height: 72px;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+.pe-field:focus { border-color: var(--gold); background: var(--white); }
+
+/* ─── HARDBALL Q ─── */
+.hardball-q {
+  border-left: 3px solid var(--gold);
+  padding: 0.875rem 1.125rem;
+  margin-bottom: 0.75rem;
+  background: var(--gold-pale);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #3A2A08;
+}
+
+/* ─── CURVEBALL ─── */
+.curveball-card {
+  background: #FFF8EC;
+  border: 1px solid #F5C06E;
+  border-radius: 12px;
+  padding: 1.125rem 1.25rem;
+  margin-bottom: 0.875rem;
+}
+.cb-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #92510A;
+  margin-bottom: 0.35rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.cb-question { font-weight: 600; font-size: 0.88rem; color: #3A2007; margin-bottom: 0.5rem; }
+.cb-hint { font-size: 0.8rem; color: #7A4F1A; border-top: 1px solid #F0D6A0; padding-top: 0.5rem; margin-top: 0.25rem; }
+.cb-hint-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: #92510A; margin-bottom: 0.2rem;
+}
+
+/* ─── COMPARISON TABLE ─── */
+.comp-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.comp-table th {
+  text-align: center; padding: 0.6rem 0.75rem;
+  background: var(--navy); color: var(--gold-light);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.comp-table th:first-child { text-align: left; }
+.comp-table td {
+  padding: 0.55rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+.comp-table td:first-child { text-align: left; color: var(--navy); font-weight: 500; font-size: 0.78rem; }
+.comp-table tr:nth-child(even) td { background: var(--surface); }
+.comp-table tr:hover td { background: var(--gold-pale); }
+.comp-table .highlight { color: var(--navy); font-weight: 600; }
+.comp-table .pos { color: var(--green); }
+.comp-table .neg { color: var(--red); }
+.comp-table .warn { color: var(--amber); }
+
+/* ─── DEBRIEF ─── */
+.debrief-q {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow);
+}
+.dq-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-3); margin-bottom: 0.3rem;
+}
+.dq-question { font-size: 0.88rem; color: var(--text); line-height: 1.5; }
+
+/* ─── ANSWER KEY TABLE ─── */
+.key-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; }
+.key-table th {
+  background: var(--navy); color: var(--gold-light);
+  font-family: 'DM Mono', monospace; font-size: 0.6rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 0.6rem 0.75rem; text-align: left; white-space: nowrap;
+}
+.key-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem; vertical-align: top;
+}
+.key-table tr:nth-child(even) td { background: var(--surface); }
+.key-table .yes { color: var(--green); font-weight: 600; }
+.key-table .no { color: var(--red); font-weight: 600; }
+.key-table .pos { color: var(--green); }
+.key-table .neg { color: var(--red); }
+
+/* ─── HERO (Overview) ─── */
+.hero {
+  background: var(--navy);
+  border-radius: 16px;
+  padding: 2rem;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(201,150,58,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--gold); margin-bottom: 0.5rem;
+}
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.75rem; color: #fff; line-height: 1.2;
+  margin-bottom: 0.6rem;
+}
+.hero-desc { font-size: 0.88rem; color: rgba(255,255,255,0.65); max-width: 600px; line-height: 1.6; }
+.hero-stats {
+  display: flex; gap: 1.5rem; margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+.hero-stat {}
+.hero-stat-val { font-family: 'DM Mono', monospace; font-size: 1.2rem; color: var(--gold-light); font-weight: 500; }
+.hero-stat-lab { font-size: 0.68rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; margin-top: 0.1rem; }
+
+/* ─── INFO BOX ─── */
+.info-box {
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  border: 1px solid;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.info-navy { background: rgba(13,27,42,0.05); border-color: rgba(13,27,42,0.15); color: var(--navy); }
+.info-amber { background: #FFFBEB; border-color: #FDE68A; color: #78350F; }
+.info-green { background: #F0FDF4; border-color: #BBF7D0; color: #14532D; }
+.info-red { background: #FFF1F2; border-color: #FECDD3; color: #881337; }
+
+/* ─── TEACHING MOMENT ─── */
+.teaching-moment {
+  background: var(--navy);
+  border-radius: 10px;
+  padding: 1.125rem 1.25rem;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.85rem;
+  border-left: 4px solid var(--gold);
+  line-height: 1.6;
+}
+.teaching-moment strong { color: var(--gold-light); }
+
+/* ─── PRINT / EXPORT BTN ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem; font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: all 0.15s;
+  text-decoration: none;
+  font-family: 'DM Mono', monospace;
+}
+.btn-navy { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn-navy:hover { background: var(--navy2); }
+.btn-outline { background: transparent; color: var(--navy); border-color: var(--border-strong); }
+.btn-outline:hover { background: var(--surface); }
+
+/* ─── PROGRESS BAR (agenda) ─── */
+.agenda-item {
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.agenda-item:last-child { border-bottom: none; }
+.agenda-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem; color: var(--text-3);
+  min-width: 100px; text-align: right;
+  padding-top: 0.1rem;
+}
+.agenda-dur {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--gold-light);
+  flex-shrink: 0;
+  font-weight: 500;
+}
+.agenda-body {}
+.agenda-phase {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-3); margin-bottom: 0.2rem;
+}
+.agenda-desc { font-size: 0.85rem; color: var(--text); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+/* ─── PRINT ─── */
+@media print {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .page-header { position: static; }
+  .section { display: block !important; }
+}
+
+/* MOBILE MENU */
+.mob-toggle {
+  display: none;
+  position: fixed; top: 1rem; left: 1rem; z-index: 300;
+  width: 40px; height: 40px;
+  background: var(--navy);
+  border-radius: 8px;
+  border: none; cursor: pointer;
+  color: #fff; font-size: 1.2rem;
+  align-items: center; justify-content: center;
+}
+@media(max-width:700px) { .mob-toggle { display: flex; } }
+
+.overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(0,0,0,0.5);
+}
+.overlay.show { display: block; }
+</style>
+</head>
+<body>
+
+<button class="mob-toggle" onclick="toggleMobile()" aria-label="Menu">☰</button>
+<div class="overlay" id="overlay" onclick="toggleMobile()"></div>
+
+<div class="app-shell">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-label">Econ 137B · Ch. 11</div>
+    <div class="brand-title">Risk & Diversification CFO Challenge</div>
+    <div class="brand-sub">Spring 2026 · UCSB</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">The Setup</div>
+    <a class="nav-item active" onclick="showSection('overview',this)">
+      <span class="nav-icon">🏢</span> Overview
+    </a>
+    <a class="nav-item" onclick="showSection('agenda',this)">
+      <span class="nav-icon">📋</span> Class Agenda
+    </a>
+
+    <div class="nav-section-label">Student Tools</div>
+    <a class="nav-item" onclick="showSection('strategies',this)">
+      <span class="nav-icon">📊</span> Group Strategies
+    </a>
+    <a class="nav-item" onclick="showSection('calculator',this)">
+      <span class="nav-icon">⚡</span> Live Calculator
+    </a>
+    <a class="nav-item" onclick="showSection('pitch',this)">
+      <span class="nav-icon">✏️</span> Pitch Builder
+    </a>
+    <a class="nav-item" onclick="showSection('hardball',this)">
+      <span class="nav-icon">🎯</span> Hardball Q&A
+    </a>
+    <a class="nav-item" onclick="showSection('curveballs',this)">
+      <span class="nav-icon">⚡</span> Curveballs
+    </a>
+
+    <div class="nav-section-label">Answer Key</div>
+    <a class="nav-item" onclick="showSection('comparison',this)">
+      <span class="nav-icon">📈</span> Comparison Table
+    </a>
+    <a class="nav-item" onclick="showSection('answerkey',this)">
+      <span class="nav-icon">🔑</span> Full Answer Key
+    </a>
+    <a class="nav-item" onclick="showSection('debrief',this)">
+      <span class="nav-icon">💬</span> Debrief Questions
+    </a>
+  </nav>
+
+  <div class="sidebar-timer">
+    <div class="timer-label">Pitch Timer</div>
+    <div class="timer-display" id="timerDisplay">4:00</div>
+    <div class="timer-buttons">
+      <button class="timer-btn primary" id="timerStartBtn" onclick="timerStart()">▶ Start</button>
+      <button class="timer-btn" onclick="timerReset()">↺ Reset</button>
+    </div>
+    <div class="timer-presets">
+      <button class="timer-preset" onclick="setTimer(240)">4:00</button>
+      <button class="timer-preset" onclick="setTimer(180)">3:00</button>
+      <button class="timer-preset" onclick="setTimer(60)">1:00</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+<!-- ══ OVERVIEW ══ -->
+<section class="section active" id="section-overview">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">Chapter 11 · In-Class Competition</div>
+      <div class="page-title">CFO Challenge: Corporate Treasury</div>
+      <div class="page-subtitle">Five groups · $500M · One sitting S&P 500 CFO · 4-minute pitch</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="hero">
+      <div class="hero-eyebrow">The Scenario</div>
+      <div class="hero-title">Should we invest the $500M — and if so, how?</div>
+      <div class="hero-desc">Five groups defend five different investment strategies to a sitting S&P 500 CFO. Every pitch must survive board-level scrutiny: IPS compliance, debt carry, M&A liquidity, and the growth-company narrative.</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-val">$500M</div><div class="hero-stat-lab">Cash to Deploy</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">$2.0B @ 5%</div><div class="hero-stat-lab">Existing Debt</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">8.0%</div><div class="hero-stat-lab">WACC Hurdle</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">6× Rev</div><div class="hero-stat-lab">Valuation</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">18–24 mo</div><div class="hero-stat-lab">M&A Timeline</div></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Company Profile</div></div>
+          <table style="width:100%;font-size:0.82rem;border-collapse:collapse;">
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">Industry</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">Large-cap S&P 500 tech / industrial</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">Excess cash</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">$500 million</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">Long-term debt</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">$2.0B @ 5.0% fixed</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">Debt / EBITDA</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">2.5× (IG, closely watched)</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">WACC</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">8.0%</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">Valuation</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">GROWTH — 6× revenue multiple</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">Analyst focus</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">Revenue growth + FCF conversion</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">M&A pipeline</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">$300–400M in 18–24 months</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">Risk-free rate Rf</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">4.2%</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);border-bottom:1px solid var(--border);">E(Rm)</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;border-bottom:1px solid var(--border);">10.5%</td></tr>
+            <tr><td style="padding:0.45rem 0;color:var(--text-2);">Market risk premium</td><td style="padding:0.45rem 0;text-align:right;color:var(--navy);font-weight:500;">6.3%</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Investment Policy Statement (IPS)</div><span class="badge badge-navy">Board Approved</span></div>
+          <div class="info-box info-navy" style="margin-bottom:1rem;">These rules were approved by the audit committee. Violating them requires a formal board exception.</div>
+          <div class="ips-rule">
+            <div class="rule-icon rule-yes">✓</div>
+            <div class="rule-body"><strong>Investment-Grade Credit Only</strong><span>BBB− (Baa3) or better. No speculative / high-yield bonds.</span></div>
+          </div>
+          <div class="ips-rule">
+            <div class="rule-icon rule-yes">✓</div>
+            <div class="rule-body"><strong>Maximum 2-Year Duration</strong><span>Protects against rate risk and ensures M&A liquidity.</span></div>
+          </div>
+          <div class="ips-rule">
+            <div class="rule-icon rule-no">✗</div>
+            <div class="rule-body"><strong>No Equities — Prohibited</strong><span>Common stock, ETFs, equity derivatives all explicitly banned.</span></div>
+          </div>
+          <div class="ips-rule">
+            <div class="rule-icon rule-no">✗</div>
+            <div class="rule-body"><strong>No Derivatives — Prohibited</strong><span>Options, futures, swaps, structured products — prohibited.</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Key Formulas</div></div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="background:var(--surface);border-radius:8px;padding:0.75rem;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3);margin-bottom:0.25rem;">Sharpe Ratio</div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.9rem;color:var(--navy);">[E(R) − Rf] ÷ σ</div>
+              <div style="font-size:0.75rem;color:var(--text-2);margin-top:0.2rem;">where Rf = 4.2% · Higher = better risk-adjusted return</div>
+            </div>
+            <div style="background:var(--surface);border-radius:8px;padding:0.75rem;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3);margin-bottom:0.25rem;">CAPM / SML</div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.9rem;color:var(--navy);">Rf + β × [E(Rm) − Rf]</div>
+              <div style="font-size:0.75rem;color:var(--text-2);margin-top:0.2rem;">= 4.2% + β × 6.3% · Above SML = alpha (favorable)</div>
+            </div>
+            <div style="background:var(--surface);border-radius:8px;padding:0.75rem;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3);margin-bottom:0.25rem;">Duration Rate Risk</div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.9rem;color:var(--navy);">Duration × ΔRate × $500M</div>
+              <div style="font-size:0.75rem;color:var(--text-2);margin-top:0.2rem;">Group B: 8.5 × 1% × $500M = $42.5M loss</div>
+            </div>
+            <div style="background:var(--surface);border-radius:8px;padding:0.75rem;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3);margin-bottom:0.25rem;">Debt Carry Spread</div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.9rem;color:var(--navy);">E(R) − 5.0% (debt coupon)</div>
+              <div style="font-size:0.75rem;color:var(--text-2);margin-top:0.2rem;">Negative = losing money vs. paying down debt</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">7 Required Pitch Elements</div><span class="badge badge-amber">3-Min Verbal Pitch · Nothing Skipped</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0.75rem;">
+        <div class="pitch-element-card" style="margin-bottom:0;">
+          <div class="pe-number">01</div>
+          <div class="pe-content">
+            <div class="pe-title">Return Numbers</div>
+            <div class="pe-hint">E(R), σ, Sharpe. Compare to WACC (8%) and debt cost (5%).</div>
+          </div>
+        </div>
+        <div class="pitch-element-card" style="margin-bottom:0;">
+          <div class="pe-number">02</div>
+          <div class="pe-content">
+            <div class="pe-title">Asset Class & Instrument</div>
+            <div class="pe-hint">Bonds or equities? Credit rating? Issuer? Counterparty risk?</div>
+          </div>
+        </div>
+        <div class="pitch-element-card" style="margin-bottom:0;">
+          <div class="pe-number">03</div>
+          <div class="pe-content">
+            <div class="pe-title">Duration & Liquidity</div>
+            <div class="pe-hint">When do we get cash back? Can we fund $300M M&A without a loss?</div>
+          </div>
+        </div>
+        <div class="pitch-element-card" style="margin-bottom:0;">
+          <div class="pe-number">04</div>
+          <div class="pe-content">
+            <div class="pe-title">IPS Compliance</div>
+            <div class="pe-hint">Compliant? If not — who approves the exception? What's the governance risk?</div>
+          </div>
+        </div>
+        <div class="pitch-element-card" style="margin-bottom:0;">
+          <div class="pe-number">05</div>
+          <div class="pe-content">
+            <div class="pe-title">Debt Carry Analysis</div>
+            <div class="pe-hint">E(R) minus 5% debt cost. State % and $ per year. Positive or negative?</div>
+          </div>
+        </div>
+        <div class="pitch-element-card" style="margin-bottom:0;">
+          <div class="pe-number">06</div>
+          <div class="pe-content">
+            <div class="pe-title">Growth Company Fit</div>
+            <div class="pe-hint">We trade at 6× revenue. What does your strategy signal to analysts?</div>
+          </div>
+        </div>
+        <div class="pitch-element-card" style="margin-bottom:0;">
+          <div class="pe-number">07</div>
+          <div class="pe-content">
+            <div class="pe-title">CFO Close</div>
+            <div class="pe-hint">"You should choose our strategy because..." — one sentence, board-ready.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="teaching-moment">
+      <strong>Key Teaching Insight:</strong> None of the five strategies is obviously correct. Each is defensible on at least one dimension and fatally flawed on at least one other. Group E — concentrated stock picking — forces the sharpest Chapter 11 conversation: unsystematic risk is real, it is uncompensated, and a corporate CFO has no business holding it.
+    </div>
+  </div>
+</section>
+
+<!-- ══ AGENDA ══ -->
+<section class="section" id="section-agenda">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">Class Structure</div>
+      <div class="page-title">60-Minute Agenda</div>
+      <div class="page-subtitle">Setup → Prep → Pitches → Cross-Exam → Vote → CFO Decision → Debrief</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="agenda-item"><div class="agenda-time">0:00–3:00</div><div class="agenda-dur">3m</div><div class="agenda-body"><div class="agenda-phase">Setup</div><div class="agenda-desc">Introduce guest CFO, read company profile aloud, distribute data sheets, assign groups</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">3:00–10:00</div><div class="agenda-dur">7m</div><div class="agenda-body"><div class="agenda-phase">Group Prep</div><div class="agenda-desc">Build pitch across all 7 elements, calculate numbers, assign speaker roles</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">10:00–30:00</div><div class="agenda-dur">20m</div><div class="agenda-body"><div class="agenda-phase">Pitches</div><div class="agenda-desc">Each group: 3 min pitch + 1 min CFO Q&A × 5 groups</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">30:00–38:00</div><div class="agenda-dur">8m</div><div class="agenda-body"><div class="agenda-phase">CFO Cross-Exam</div><div class="agenda-desc">CFO fires hardball questions — other groups may challenge</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">38:00–43:00</div><div class="agenda-dur">5m</div><div class="agenda-body"><div class="agenda-phase">Class Vote</div><div class="agenda-desc">Best Risk Argument / Best Strategy / Most Board-Ready</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">43:00–50:00</div><div class="agenda-dur">7m</div><div class="agenda-body"><div class="agenda-phase">CFO Decision</div><div class="agenda-desc">Allocation announced with explicit board-level rationale</div></div></div>
+      <div class="agenda-item"><div class="agenda-time">50:00–60:00</div><div class="agenda-dur">10m</div><div class="agenda-body"><div class="agenda-phase">Debrief</div><div class="agenda-desc">Discussion questions, teaching synthesis, guest CFO reflection on theory vs. reality</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Voting Categories</div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+        <div style="background:var(--surface);border-radius:10px;padding:1rem;border:1px solid var(--border);">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem;">📊</div>
+          <div style="font-weight:600;font-size:0.85rem;color:var(--navy);margin-bottom:0.25rem;">Best Risk Argument</div>
+          <div style="font-size:0.78rem;color:var(--text-2);">Most rigorous use of Sharpe, CAPM, duration, and carry in a corporate treasury context.</div>
+        </div>
+        <div style="background:var(--surface);border-radius:10px;padding:1rem;border:1px solid var(--border);">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem;">♟️</div>
+          <div style="font-weight:600;font-size:0.85rem;color:var(--navy);margin-bottom:0.25rem;">Best Strategy</div>
+          <div style="font-size:0.78rem;color:var(--text-2);">Most compelling argument for this specific company: growth-stage, 6× revenue, IPS-constrained.</div>
+        </div>
+        <div style="background:var(--surface);border-radius:10px;padding:1rem;border:1px solid var(--border);">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem;">🎙️</div>
+          <div style="font-weight:600;font-size:0.85rem;color:var(--navy);margin-bottom:0.25rem;">Most Board-Ready</div>
+          <div style="font-size:0.78rem;color:var(--text-2);">The pitch the CFO could walk into the audit committee with — numbers, narrative, compliance aligned.</div>
+        </div>
+        <div style="background:var(--navy);border-radius:10px;padding:1rem;border:1px solid var(--navy);">
+          <div style="font-size:1.5rem;margin-bottom:0.4rem;">⚖️</div>
+          <div style="font-weight:600;font-size:0.85rem;color:var(--gold-light);margin-bottom:0.25rem;">CFO Decision</div>
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Guest CFO's allocation — full $500M, split, or return capital.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">CFO Allocation Options</div></div>
+      <div class="info-box info-navy"><strong>Option A:</strong> Full $500M to one strategy</div>
+      <div class="info-box info-navy"><strong>Option B:</strong> $300M for M&A reserve (liquid) + $200M for return-seeking (longer duration OK)</div>
+      <div class="info-box info-amber"><strong>Option C:</strong> Return the capital — recommend a buyback or special dividend instead of any strategy. <em>This is a legitimate and powerful teaching moment.</em></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STRATEGIES ══ -->
+<section class="section" id="section-strategies">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">Group Assignments</div>
+      <div class="page-title">Five Strategies</div>
+      <div class="page-subtitle">Click a group to see the full brief with metrics, thesis, and traps.</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="group-tabs" id="groupTabs">
+      <button class="group-tab active" onclick="selectGroup(0,this)"><span class="group-letter">A</span> IG Bond Ladder</button>
+      <button class="group-tab" onclick="selectGroup(1,this)"><span class="group-letter">B</span> 10-Yr Treasury</button>
+      <button class="group-tab" onclick="selectGroup(2,this)"><span class="group-letter">C</span> T-Bill / MMF</button>
+      <button class="group-tab" onclick="selectGroup(3,this)"><span class="group-letter">D</span> S&P 500 ETF</button>
+      <button class="group-tab" onclick="selectGroup(4,this)"><span class="group-letter">E</span> 5 Stocks</button>
+    </div>
+    <div id="strategyDetail"></div>
+  </div>
+</section>
+
+<!-- ══ CALCULATOR ══ -->
+<section class="section" id="section-calculator">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">Live Tool</div>
+      <div class="page-title">Sharpe & CAPM Calculator</div>
+      <div class="page-subtitle">Enter your group's numbers — all metrics update instantly.</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header"><div class="card-title">Market Parameters — Fixed</div></div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val">4.2%</div><div class="stat-label">Rf (Risk-Free)</div></div>
+        <div class="stat-box"><div class="stat-val">10.5%</div><div class="stat-label">E(Rm)</div></div>
+        <div class="stat-box"><div class="stat-val">6.3%</div><div class="stat-label">Market Premium</div></div>
+        <div class="stat-box"><div class="stat-val">8.0%</div><div class="stat-label">WACC</div></div>
+        <div class="stat-box"><div class="stat-val">5.0%</div><div class="stat-label">Debt Coupon</div></div>
+        <div class="stat-box"><div class="stat-val">$500M</div><div class="stat-label">Portfolio Size</div></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Your Group Inputs</div></div>
+          <div class="calc-inputs">
+            <div class="input-group"><label>Expected Return E(R) %</label><input type="number" id="inp_er" value="5.8" step="0.1" min="0" max="30" oninput="recalc()"></div>
+            <div class="input-group"><label>Std Deviation σ %</label><input type="number" id="inp_sigma" value="3.5" step="0.1" min="0.01" max="50" oninput="recalc()"></div>
+            <div class="input-group"><label>Beta β</label><input type="number" id="inp_beta" value="0.10" step="0.01" min="-2" max="3" oninput="recalc()"></div>
+            <div class="input-group"><label>Duration (years)</label><input type="number" id="inp_dur" value="1.25" step="0.1" min="0" max="30" oninput="recalc()"></div>
+          </div>
+
+          <div style="margin-top:0.5rem;">
+            <div class="card-title" style="margin-bottom:0.75rem;">Quick Fill — Group Presets</div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+              <button class="btn btn-outline" onclick="fillGroup(0)" style="font-size:0.72rem;padding:0.35rem 0.75rem;">A · IG Bonds</button>
+              <button class="btn btn-outline" onclick="fillGroup(1)" style="font-size:0.72rem;padding:0.35rem 0.75rem;">B · 10-Yr T</button>
+              <button class="btn btn-outline" onclick="fillGroup(2)" style="font-size:0.72rem;padding:0.35rem 0.75rem;">C · T-Bills</button>
+              <button class="btn btn-outline" onclick="fillGroup(3)" style="font-size:0.72rem;padding:0.35rem 0.75rem;">D · ETF</button>
+              <button class="btn btn-outline" onclick="fillGroup(4)" style="font-size:0.72rem;padding:0.35rem 0.75rem;">E · Stocks</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="results-panel">
+          <div class="results-title">Calculated Metrics</div>
+          <div class="result-row"><div class="result-key">Sharpe Ratio</div><div class="result-val" id="r_sharpe">—</div></div>
+          <div class="result-row"><div class="result-key">CAPM Required Return</div><div class="result-val" id="r_capm">—</div></div>
+          <div class="result-row"><div class="result-key">SML Position</div><div class="result-val" id="r_sml">—</div></div>
+          <div class="result-row"><div class="result-key">vs. WACC (8.0%)</div><div class="result-val" id="r_wacc">—</div></div>
+          <div class="result-row"><div class="result-key">vs. Debt Cost (5.0%)</div><div class="result-val" id="r_carry">—</div></div>
+          <div class="result-row"><div class="result-key">Annual $ Carry (net)</div><div class="result-val" id="r_carry_d">—</div></div>
+          <div class="result-row"><div class="result-key">Rate +1% — MTM Loss</div><div class="result-val" id="r_dur">—</div></div>
+          <div class="result-row"><div class="result-key">1-Sigma Downside ($M)</div><div class="result-val" id="r_sigma_d">—</div></div>
+          <div class="result-row"><div class="result-key">IPS: σ Cap (≤8%)?</div><div class="result-val" id="r_ips">—</div></div>
+          <div class="result-row"><div class="result-key">IPS: Duration (≤2yr)?</div><div class="result-val" id="r_dur_ips">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PITCH BUILDER ══ -->
+<section class="section" id="section-pitch">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">Prep Tool</div>
+      <div class="page-title">Pitch Builder</div>
+      <div class="page-subtitle">Draft your 7 required elements. Notes save for this session.</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="info-box info-amber">You have <strong>3 minutes</strong> to pitch. Each element should take 20–25 seconds. Assign speakers before you start.</div>
+    <div class="pitch-element-card">
+      <div class="pe-number">01</div>
+      <div class="pe-content">
+        <div class="pe-title">Return Numbers</div>
+        <div class="pe-hint">State E(R), σ, and Sharpe. Compare to WACC (8%) and debt cost (5%). Both hurdles matter.</div>
+        <textarea class="pe-field" id="pf0" placeholder="Draft your argument here..."></textarea>
+      </div>
+    </div>
+    <div class="pitch-element-card">
+      <div class="pe-number">02</div>
+      <div class="pe-content">
+        <div class="pe-title">Asset Class — What Are We Buying?</div>
+        <div class="pe-hint">Bonds, index ETF, or individual stocks? Credit rating, issuer, counterparty risk — who could fail to pay, and what's the worst-case dollar exposure?</div>
+        <textarea class="pe-field" id="pf1" placeholder="Draft your argument here..."></textarea>
+      </div>
+    </div>
+    <div class="pitch-element-card">
+      <div class="pe-number">03</div>
+      <div class="pe-content">
+        <div class="pe-title">Duration & Liquidity — When Do We Get Cash Back?</div>
+        <div class="pe-hint">We need $300–400M for M&A in 18 months. Can you liquidate without a loss? "Liquid" is not the same as "safe to liquidate."</div>
+        <textarea class="pe-field" id="pf2" placeholder="Draft your argument here..."></textarea>
+      </div>
+    </div>
+    <div class="pitch-element-card">
+      <div class="pe-number">04</div>
+      <div class="pe-content">
+        <div class="pe-title">IPS Compliance</div>
+        <div class="pe-hint">Compliant or not? If not — who approves the board exception, and what happens if the market moves against you before the vote?</div>
+        <textarea class="pe-field" id="pf3" placeholder="Draft your argument here..."></textarea>
+      </div>
+    </div>
+    <div class="pitch-element-card">
+      <div class="pe-number">05</div>
+      <div class="pe-content">
+        <div class="pe-title">Debt Carry Analysis</div>
+        <div class="pe-hint">E(R) minus 5% debt cost. State the % AND the dollar amount per year. Positive carry = argue to invest. Negative carry = argue why liquidity is worth the cost.</div>
+        <textarea class="pe-field" id="pf4" placeholder="Draft your argument here..."></textarea>
+      </div>
+    </div>
+    <div class="pitch-element-card">
+      <div class="pe-number">06</div>
+      <div class="pe-content">
+        <div class="pe-title">Growth Company Fit</div>
+        <div class="pe-hint">We trade at 6× revenue. Analysts model us on growth and FCF conversion. What does your strategy signal about capital allocation discipline?</div>
+        <textarea class="pe-field" id="pf5" placeholder="Draft your argument here..."></textarea>
+      </div>
+    </div>
+    <div class="pitch-element-card">
+      <div class="pe-number">07</div>
+      <div class="pe-content">
+        <div class="pe-title">CFO Close</div>
+        <div class="pe-hint">"You should choose our strategy because…" — One sentence. Board-ready. Specific to this company, not a generic finance argument.</div>
+        <textarea class="pe-field" id="pf6" placeholder="Draft your one-sentence close..."></textarea>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HARDBALL ══ -->
+<section class="section" id="section-hardball">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">CFO Attack Lines</div>
+      <div class="page-title">Hardball Q&A</div>
+      <div class="page-subtitle">Universal questions every group faces — plus targeted attacks by group.</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Universal — All Groups Face These</div></div>
+      <div class="hardball-q">"Walk me through the carry trade: we're paying 5% on $2 billion of debt. What is your strategy earning net of that cost?"</div>
+      <div class="hardball-q">"I have to present this to our audit committee. They approved an IPS. Your strategy either violates it or barely fits it. Which is it, and what do I tell them?"</div>
+      <div class="hardball-q">"We expect to need $300–400M for an acquisition in about 18 months. If I put all $500M into your strategy today, can I get that much back without taking a loss?"</div>
+      <div class="hardball-q">"We trade at 6× revenue. Our investors own us because they believe in our growth story. What does parking $500M in your strategy say about how we think about the future of this company?"</div>
+      <div class="hardball-q">"What is the single biggest counterparty risk in your strategy — and what is the worst-case outcome if that counterparty fails?"</div>
+      <div class="hardball-q">"If I do nothing — just leave the cash in a bank account — what does that cost me relative to your strategy? Make the case for why moving the money at all is worth the complexity."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Group-Specific Attacks</div></div>
+      <div class="group-tabs" id="hardballTabs">
+        <button class="group-tab active" onclick="selectHardball(0,this)"><span class="group-letter">A</span> IG Bonds</button>
+        <button class="group-tab" onclick="selectHardball(1,this)"><span class="group-letter">B</span> 10-Yr T</button>
+        <button class="group-tab" onclick="selectHardball(2,this)"><span class="group-letter">C</span> T-Bills</button>
+        <button class="group-tab" onclick="selectHardball(3,this)"><span class="group-letter">D</span> ETF</button>
+        <button class="group-tab" onclick="selectHardball(4,this)"><span class="group-letter">E</span> Stocks</button>
+      </div>
+      <div id="hardballGroupQs"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CURVEBALLS ══ -->
+<section class="section" id="section-curveballs">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">CFO Wild Cards</div>
+      <div class="page-title">Curveball Scenarios</div>
+      <div class="page-subtitle">CFO may fire one mid-class. Prepare a 30–90 second response.</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="curveball-card">
+      <div class="cb-label">⚡ Curveball 1 — Duration Trap</div>
+      <div class="cb-question">The board just approved a $350M acquisition. The deal could close in 6 months. Group B — you told us to hold the 10-year Treasury to maturity. The 10-year yield has risen 80bps since you bought. What is the mark-to-market loss if you sell today? Use duration 8.5 years. You have 90 seconds.</div>
+      <div class="cb-hint"><div class="cb-hint-label">Answer framework</div>MTM Loss = 8.5 × 0.80% × $500M = <strong>$34M</strong>. Group B must confront the contradiction: "hold to maturity" and "fund M&A in 6 months" cannot both be true.</div>
+    </div>
+    <div class="curveball-card">
+      <div class="cb-label">⚡ Curveball 2 — IPS Violation</div>
+      <div class="cb-question">Our audit committee just reviewed the investment portfolio. Group D — they flagged your equity ETF as an IPS violation. They want to know why the CFO approved an equity position when the policy explicitly prohibits it. You have 60 seconds to make the case for a retroactive policy exception, or tell me how we unwind without a loss.</div>
+      <div class="cb-hint"><div class="cb-hint-label">Answer framework</div>Group D must either defend a governance process (board vote, amendment timeline) or admit unwind risk: selling $500M of ETF at market price with no guarantee of timing.</div>
+    </div>
+    <div class="curveball-card">
+      <div class="cb-label">⚡ Curveball 3 — Counterparty Event</div>
+      <div class="cb-question">One of Group A's eight corporate bond issuers just had their credit downgraded from BBB+ to BB− — below investment grade. The IPS requires investment-grade only. You must sell that tranche immediately. Credit spreads have widened 150bps. What is the approximate loss, and how does this change your pitch?</div>
+      <div class="cb-hint"><div class="cb-hint-label">Answer framework</div>~$62.5M tranche × duration ~1yr × 1.5% spread widen ≈ $940K loss plus bid-ask. Forces the "fallen angel" BBB risk discussion Group A's thesis depends on avoiding.</div>
+    </div>
+    <div class="curveball-card">
+      <div class="cb-label">⚡ Curveball 4 — Rate Shock</div>
+      <div class="cb-question">The Fed just cut rates 100bps. Every group — update your carry analysis. What are you now earning relative to our 5% fixed-rate debt? Which strategy looks best and worst on a net carry basis? You have 90 seconds each.</div>
+      <div class="cb-hint"><div class="cb-hint-label">Answer framework</div>T-bills (C) drop to ~3.2% → carry becomes −1.8%. Group A bonds adjust slightly. Groups D & E equity returns unchanged by rate cuts. This rewards the fixed-coupon bond strategies on carry.</div>
+    </div>
+    <div class="curveball-card">
+      <div class="cb-label">⚡ Curveball 5 — Activist Shareholder</div>
+      <div class="cb-question">An activist fund just filed a 13D. They want us to return all $500M to shareholders via buyback at our current price. Every group — you have 60 seconds to argue that your investment strategy creates more value per share than a buyback, given that we trade at 6× revenue.</div>
+      <div class="cb-hint"><div class="cb-hint-label">Answer framework</div>Must calculate buyback share reduction vs. investment return, and argue why M&A optionality or carry exceeds EPS accretion from repurchase at a 6× revenue multiple.</div>
+    </div>
+    <div class="curveball-card">
+      <div class="cb-label">⚡ Curveball 6 — Earnings Shock (Group E)</div>
+      <div class="cb-question">One of Group E's five stocks just missed earnings by 40% and is down 35% pre-market. Their $100M position is now worth $65M — a $35M realized loss if they sell. The board wants to know why we own a single company's stock in our corporate treasury. Group E: you have 90 seconds to defend the position or recommend we cut the loss.</div>
+      <div class="cb-hint"><div class="cb-hint-label">Answer framework</div>This is the Chapter 11 lesson made real: $35M idiosyncratic loss from one earnings miss. CAPM says this risk earns zero premium. Group E must defend why they accepted uncompensated risk.</div>
+    </div>
+    <div class="curveball-card" style="background:#F0F7FF;border-color:#93C5FD;">
+      <div class="cb-label" style="color:#1E3A8A;">🔀 Split Budget Twist — Use Anytime</div>
+      <div class="cb-question" style="color:#1E40AF;">"I've decided to split the $500M — $300M must be ready for M&A within 18 months in maximum-liquidity form, and $200M can be invested for return over 2 years. Revise your pitches. Which tranche are you pitching for, and does your strategy survive the split?"</div>
+      <div class="cb-hint" style="color:#1E3A8A;border-color:#BFDBFE;"><div class="cb-hint-label" style="color:#1E3A8A;">Answer framework</div>Forces every group to decide: liquidity tranche or return tranche? Group C is natural for $300M. Group A 2-yr rungs for $200M. Groups D/E face impossible liquidity constraint on the $300M tranche.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ COMPARISON ══ -->
+<section class="section" id="section-comparison">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">All Five Strategies</div>
+      <div class="page-title">Head-to-Head Comparison</div>
+      <div class="page-subtitle">Pre-calculated metrics for class display. Rf = 4.2% | WACC = 8.0% | Debt = 5.0%</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card" style="overflow-x:auto;">
+      <div class="card-header"><div class="card-title">Calculated Metrics Table</div><span class="badge badge-navy">Answer Key</span></div>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>A · IG Bonds</th>
+            <th>B · 10-Yr T</th>
+            <th>C · T-Bill</th>
+            <th>D · ETF</th>
+            <th>E · 5 Stocks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>E(R)</td><td class="highlight">5.8%</td><td>4.5%</td><td>4.3%</td><td class="pos">10.5%</td><td class="pos">14.0%</td></tr>
+          <tr><td>σ (std dev)</td><td>3.5%</td><td>11.0%</td><td class="pos">0.5%</td><td class="warn">14.0%</td><td class="neg">28.0%</td></tr>
+          <tr><td>Sharpe Ratio ★</td><td class="pos">0.457 ★</td><td class="neg">0.027</td><td>0.200</td><td class="pos">0.450</td><td>0.350</td></tr>
+          <tr><td>CAPM Required</td><td>4.83%</td><td>4.52%</td><td>4.20%</td><td>10.50%</td><td>13.02%</td></tr>
+          <tr><td>SML Position</td><td class="pos">Above</td><td class="pos">Above</td><td class="pos">Above</td><td>On SML</td><td class="neg">Below</td></tr>
+          <tr><td>vs. WACC (8%)</td><td class="neg">−2.2%</td><td class="neg">−3.5%</td><td class="neg">−3.7%</td><td class="pos">+2.5%</td><td class="pos">+6.0%</td></tr>
+          <tr><td>Debt Carry (%)</td><td class="pos">+0.8%</td><td class="neg">−0.5%</td><td class="neg">−0.7%</td><td class="pos">+5.5%</td><td class="pos">+9.0%</td></tr>
+          <tr><td>Annual $ Carry</td><td class="pos">+$4.0M</td><td class="neg">−$2.5M</td><td class="neg">−$3.5M</td><td class="pos">+$27.5M</td><td class="pos">+$45M</td></tr>
+          <tr><td>MTM Loss if +1% rates</td><td>−$6.3M</td><td class="neg">−$42.5M</td><td>~$0</td><td>N/A</td><td>N/A</td></tr>
+          <tr><td>1-σ Downside ($M)</td><td class="pos">+$11.5M</td><td class="neg">−$32.5M</td><td class="pos">+$19.0M</td><td class="warn">−$17.5M</td><td class="neg">−$70.0M</td></tr>
+          <tr><td>Duration</td><td>1.25 yrs</td><td class="neg">10 yrs</td><td class="pos">&lt;90 days</td><td>Indefinite</td><td>Indefinite</td></tr>
+          <tr><td>Asset Class</td><td>Corp Bond</td><td>Gov Bond</td><td>Cash Equiv</td><td>Equity (500)</td><td>Equity (5)</td></tr>
+          <tr><td>IPS Compliant?</td><td><span class="badge badge-green">YES ✓</span></td><td><span class="badge badge-red">Duration ✗</span></td><td><span class="badge badge-green">YES ✓</span></td><td><span class="badge badge-red">Equities ✗</span></td><td><span class="badge badge-red">Equities ✗</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Sharpe Ratio Ranking</div></div>
+      <div id="sharpeBars"></div>
+    </div>
+
+    <div class="teaching-moment">
+      <strong>Sharpe Paradox:</strong> Group A has the highest Sharpe (0.457) despite the second-lowest E(R) — IPS-compliant capital discipline rewarded. Group D (0.450) beats WACC but is IPS non-compliant. Group E is the Chapter 11 lesson: highest E(R) at 14%, but <em>lowest</em> Sharpe of the equity strategies at 0.350. Carrying uncompensated unsystematic risk in a 5-stock portfolio punishes the Sharpe ratio. Group B at 0.027 is nearly worthless on a risk-adjusted basis.
+    </div>
+  </div>
+</section>
+
+<!-- ══ ANSWER KEY ══ -->
+<section class="section" id="section-answerkey">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">Instructor Reference</div>
+      <div class="page-title">Full Six-Dimension Answer Key</div>
+      <div class="page-subtitle">Counterparty · Duration · Asset Class · IPS · Debt Carry · Growth Fit</div>
+    </div>
+  </div>
+  <div class="content">
+    <div id="answerKeyContent"></div>
+  </div>
+</section>
+
+<!-- ══ DEBRIEF ══ -->
+<section class="section" id="section-debrief">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="eyebrow">Final 10 Minutes</div>
+      <div class="page-title">Debrief Discussion</div>
+      <div class="page-subtitle">Surface the gap between textbook theory and real CFO decisions.</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="debrief-q">
+      <div class="dq-num">Question 1</div>
+      <div class="dq-question">Group B's Treasury has zero counterparty risk but maximum duration risk and negative carry against our debt. Group C has zero duration risk but negative carry and destroys growth-company optics. Which is the lesser evil — and why does that depend on the company's specific situation?</div>
+    </div>
+    <div class="debrief-q">
+      <div class="dq-num">Question 2</div>
+      <div class="dq-question">The IPS was written to protect the company. Three groups violated it. Was there a version of any of those pitches where the board should have said yes anyway? What would it take?</div>
+    </div>
+    <div class="debrief-q">
+      <div class="dq-num">Question 3</div>
+      <div class="dq-question">We're paying 5% on $2B of debt. Three of the five strategies earn less than 5.8%. What does that tell you about the real purpose of holding this cash — it's not about return, so what is it about?</div>
+    </div>
+    <div class="debrief-q">
+      <div class="dq-num">Question 4</div>
+      <div class="dq-question">Group E picked five individual stocks. Group D bought 500. Both violated the IPS. But Chapter 11 says unsystematic risk is uncompensated. Which equity group made the worse mistake — and does the chapter theory actually answer that question?</div>
+    </div>
+    <div class="debrief-q">
+      <div class="dq-num">Question 5</div>
+      <div class="dq-question">Group E had the highest E(R) at 14% and the highest σ at 28%. Their Sharpe ratio is (14%−4.2%)/28% = 0.350 — lower than Group D's 0.450. What does that tell us about the cost of underdiversification?</div>
+    </div>
+    <div class="debrief-q">
+      <div class="dq-num">Question 6</div>
+      <div class="dq-question">The "10-year bond held to maturity" framing is very seductive — you get the full yield. What is the hidden assumption that makes that framing dangerous for a company with active M&A plans?</div>
+    </div>
+    <div class="debrief-q">
+      <div class="dq-num">Question 7</div>
+      <div class="dq-question">What would the guest CFO actually do with $500M right now — and how closely does that match any of the five strategies they just heard pitched?</div>
+    </div>
+
+    <div class="teaching-moment" style="margin-top:1.25rem;">
+      <strong>Closing Teaching Moment:</strong> Textbook portfolio theory optimizes return per unit of risk for a rational investor with a stable, long-horizon mandate. A corporate CFO is optimizing across five different constraint sets simultaneously: IPS compliance, board governance, analyst optics, M&A optionality, and debt service. The math is the same. The mandate is completely different.
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+const GROUPS = [
+  {
+    letter:'A', name:'IG Corporate Bond Ladder',
+    sub:'Bonds (Corporate IG) · BBB+ or better · 8 issuers',
+    er:5.8, sigma:3.5, beta:0.10, dur:1.25,
+    ips:{ig:true, dur2:true, noEq:true, noDeriv:true},
+    ipsLabel:'COMPLIANT',
+    carry:'+0.8%', carryDollar:'+$4.0M / yr net',
+    assetClass:'Investment-grade corporate bonds (BBB+ or better)',
+    counterparty:'Eight different IG corporate issuers. BBB issuers have ~0.25% annual default rate. In a recession, BBB is most likely to be downgraded to junk ("fallen angels").',
+    durationNote:'Average duration ~1.25 years. Each rung matures on its own schedule. The 6-month and 1-year tranches alone total ~$250M — adequate but tight for M&A.',
+    ipsNote:'FULLY COMPLIANT. Investment-grade only, duration ≤ 2 years, no equities. This is the strongest IPS argument in the competition.',
+    carryNote:'E(R) 5.8% vs. debt at 5.0% = +80bps positive carry. On $500M that is $4M/year in net interest income. The only bond strategy with positive carry.',
+    growthNote:'Mixed. Bond ladder signals capital discipline. But E(R) is well below WACC — long-term, this destroys EVA on $500M.',
+    thesis:"Only IPS-compliant strategy with positive carry over the 5% debt cost. Laddered maturities provide rolling liquidity. Sharpe is the highest in the competition at 0.457.",
+    trap:'BBB bonds in a recession can become "fallen angels" — sub-investment-grade overnight. Counterparty risk across 8 issuers is real and requires active monitoring.',
+    hardball:[
+      '"Your E(R) is 5.8%. Our debt costs 5.0%. That\'s an 80bps spread on $500M — $4M per year. Is that worth the operational complexity and counterparty exposure across eight different corporate issuers?"',
+      '"BBB+ is investment-grade — barely. In a recession, BBB bonds get downgraded to junk at exactly the moment we need liquidity most. How do you stress-test that?"',
+      '"You said I can sell any rung within T+2. But if credit spreads widen 200bps during a market shock, what is the mark-to-market loss on the 2-year tranche when I need to sell it?"',
+      '"Our IPS says investment-grade only. If one of your eight issuers gets downgraded to BB during the holding period, what happens? Do we have to sell at a loss?"',
+    ]
+  },
+  {
+    letter:'B', name:'10-Year Treasury (Hold to Maturity)',
+    sub:'Bonds (US Treasury) · Sovereign · Zero credit risk',
+    er:4.5, sigma:11.0, beta:0.05, dur:10,
+    ips:{ig:true, dur2:false, noEq:true, noDeriv:true},
+    ipsLabel:'NON-COMPLIANT — Duration',
+    carry:'−0.5%', carryDollar:'−$2.5M / yr net',
+    assetClass:'US Treasury bond — sovereign, fixed income, zero credit risk',
+    counterparty:'Near-zero. US Treasury is the global risk-free benchmark. No realistic default scenario. This is Group B\'s strongest card.',
+    durationNote:'FATAL FLAW. Duration ≈ 8.5 years. If rates rise 1%, MTM loss = 8.5 × 1% × $500M = $42.5M. The "held-to-maturity" framing only works if you never need the money early. This company does.',
+    ipsNote:'NON-COMPLIANT — duration exceeds the 2-year IPS maximum. Students must argue for a board exception, explaining who bears responsibility if it goes wrong.',
+    carryNote:'E(R) 4.5% vs. debt at 5.0% = NEGATIVE 50bps. On $500M, the company loses ~$2.5M per year — paying more on its bonds than it earns on its investment.',
+    growthNote:'Poorly. A growth company locking up $500M for 10 years signals management has no productive use for capital. Analysts will immediately ask why the board didn\'t approve a buyback.',
+    thesis:'Zero counterparty risk — US Treasury is the global benchmark. If held to maturity, you know exactly what you\'re getting. Maximum capital preservation.',
+    trap:'IPS violation on duration. MTM risk: if rates rise 1%, that\'s $42.5M in mark-to-market loss. The "hold to maturity" argument collapses the moment M&A is needed.',
+    hardball:[
+      '"Your pitch is built on holding to maturity. But our debt costs 5.0% — you\'re earning 4.5%. Explain why this is not just burning $2.5M a year in negative carry."',
+      '"Walk me through the math: if the 10-year yield rises 1% after we buy, what is the mark-to-market loss on $500M? Use duration of 8.5 years. I want the number."',
+      '"We need $300M for M&A in 18 months. You told me to hold to maturity. Those two things cannot both be true. Which one gives?"',
+      '"You have zero counterparty risk — I\'ll give you that. But you have maximum duration risk and maximum IPS non-compliance. How do you get a board that approved a 2-year max duration policy to approve a 10-year bond?"',
+    ]
+  },
+  {
+    letter:'C', name:'T-Bill / Money Market Fund',
+    sub:'Cash Equivalent · US Gov\'t / SEC Rule 2a-7 · <90 days',
+    er:4.3, sigma:0.5, beta:0.00, dur:0.08,
+    ips:{ig:true, dur2:true, noEq:true, noDeriv:true},
+    ipsLabel:'COMPLIANT',
+    carry:'−0.7%', carryDollar:'−$3.5M / yr net',
+    assetClass:'Cash equivalents — T-bills and money market funds. Essentially liquidity in a higher-yielding wrapper.',
+    counterparty:'Effectively zero. T-bills are US government obligations. MMFs regulated under SEC Rule 2a-7. Safest possible counterparty profile.',
+    durationNote:'Maximum liquidity. T-bills mature in ≤90 days; MMFs offer same-day or T+1 redemption. The only strategy guaranteeing the full $300M for M&A without any MTM risk.',
+    ipsNote:'FULLY COMPLIANT — the most conservative interpretation of the IPS. The only strategy a conservative audit committee could approve without debate.',
+    carryNote:'E(R) 4.3% vs. debt at 5.0% = NEGATIVE 70bps — worst of the bond strategies. On $500M that is $3.5M/year in negative carry. If Fed cuts rates, this gets worse.',
+    growthNote:'Worst of the five. Holding $500M in T-bills on a growth company\'s balance sheet is the clearest signal management has no good investment ideas. Analysts will ask why this isn\'t returned to shareholders.',
+    thesis:'Maximum flexibility. If M&A hits tomorrow you can fund it. Zero mark-to-market risk. Frame this as optionality — the cost of T-bills is 4.3% PLUS the right to do anything you want in 18 months.',
+    trap:'4.3% return < 5% cost of debt = losing $3.5M/year. Growth company sitting on T-bills signals lack of opportunity. Invites the buyback question instantly.',
+    hardball:[
+      '"Your E(R) is 4.3%. Our debt coupon is 5.0%. You are losing $3.5M a year. Why is this better than paying down debt?"',
+      '"This is just cash with extra steps. If we\'re going to sit in T-bills, why not just declare a special dividend? Walk me through why parking it is better than returning it."',
+      '"For a growth company trading at 6× revenue, what signal does holding half a billion in T-bills send to the market about our confidence in our own business?"',
+      '"The Fed cuts rates 100bps. Your rolling T-bill yield drops to 3.2%. Now you\'re earning 1.8% below our debt cost. At what point does the negative carry become untenable?"',
+    ]
+  },
+  {
+    letter:'D', name:'S&P 500 Equity Index ETF',
+    sub:'Equities (500 stocks) · Passive Index · DTCC cleared',
+    er:10.5, sigma:14.0, beta:1.00, dur:0,
+    ips:{ig:true, dur2:true, noEq:false, noDeriv:true},
+    ipsLabel:'NON-COMPLIANT — Equities',
+    carry:'+5.5%', carryDollar:'+$27.5M / yr expected',
+    assetClass:'S&P 500 ETF — passive index, 500 stocks, near-zero unsystematic risk, full systematic risk.',
+    counterparty:'Low — exchange-traded, cleared through DTCC. No individual issuer concentration. Students must distinguish counterparty risk (low) from market risk (high) — these are different.',
+    durationNote:'Technically liquid (T+1) but mark-to-market means value is uncertain. If markets drop 20%, selling $375M of ETF at depressed prices to receive $300M = $75M loss. "Liquid" ≠ "safe to liquidate."',
+    ipsNote:'COMPLETELY NON-COMPLIANT. The IPS explicitly prohibits equities. Not a gray area — direct violation. Students must either argue for a board-approved IPS amendment or acknowledge they would not be approved.',
+    carryNote:'E(R) 10.5% vs. debt at 5.0% = +550bps positive carry — best of the compliant strategies. On $500M: $27.5M/year expected. But σ=14% means in a 1-sigma bad year, the portfolio loses $7M instead.',
+    growthNote:'Deeply contradictory. AGAINST: a growth company at 6× revenue has no business turning itself into a miniature S&P 500 fund. FOR: if the company has no better use and is unwilling to return capital, index beats WACC. IPS non-compliance makes this moot without a board amendment.',
+    thesis:'Only strategy clearly beating WACC. Full systematic diversification — all unsystematic risk eliminated. Sharpe of 0.450 is strong. T+1 settlement provides daily liquidity.',
+    trap:'IPS completely prohibits equities. σ = 14% — on $500M, a bad year destroys value at exactly the moment M&A may need funding. Board presentability is near-zero.',
+    hardball:[
+      '"Our IPS explicitly prohibits equities. You are asking me to violate the investment policy approved by our audit committee. Walk me through the governance process required to get that exception — and tell me whose job is on the line if the equity market drops 25% the month before we need the M&A cash."',
+      '"We are a growth company trading at 6× revenue. If we own $500M of the S&P 500, we are essentially a closed-end fund for 15% of our market cap. What do our institutional investors think about that?"',
+      '"Your σ is 14%. On $500M, a 1-standard-deviation bad year wipes out $70M. We have $2B of debt. If equities drop 20% and operations slow simultaneously — which is exactly when these things happen — how do we service the debt?"',
+      '"T+1 settlement sounds liquid — but if equities are down 15% and we\'re forced to sell for M&A, we\'ve realized a $75M loss. Is your strategy liquid, or is it just tradeable?"',
+    ]
+  },
+  {
+    letter:'E', name:'Concentrated Stock Portfolio (5 Stocks)',
+    sub:'Individual Equities · ~$100M per position · No maturity date',
+    er:14.0, sigma:28.0, beta:1.40, dur:0,
+    ips:{ig:true, dur2:true, noEq:false, noDeriv:true},
+    ipsLabel:'NON-COMPLIANT — Equities',
+    carry:'+9.0%', carryDollar:'+$45M / yr expected — but σ=28%',
+    assetClass:'Individual equities — highest-risk, most IPS-violating category. Carries BOTH systematic AND unsystematic (firm-specific) risk.',
+    counterparty:'HIGH and concentrated. ~$100M per position. If one company goes bankrupt, the company loses the entire $100M — not just a fraction of a diversified portfolio. Must name the five stocks and identify default risk for each.',
+    durationNote:'No maturity date. Liquid in theory (T+1) but mark-to-market volatility with σ=28% means value is extremely uncertain. One bad earnings call and $300M in M&A funding could require selling at a 30-40% loss.',
+    ipsNote:'COMPLETELY NON-COMPLIANT — worse than Group D in one key way: Group D holds 500 stocks with near-zero unsystematic risk. Group E holds 5 stocks with massive unsystematic risk on top of the IPS violation.',
+    carryNote:'E(R) 14.0% vs. debt at 5.0% = +900bps carry — highest on paper. But σ=28% means a 1-sigma bad year produces a loss of (14%−28%) × $500M = −$70M. A $115M swing relative to expected.',
+    growthNote:'Worst of the equity strategies. Picking individual stocks in corporate treasury signals CFO believes they can beat the market — dangerous. Analysts will immediately ask why capital isn\'t going into R&D or organic growth. Governance conversation is significantly worse than for an index ETF.',
+    thesis:'Highest E(R) of all five strategies at 14%. If you identify correctly mispriced securities, the return is exceptional and the carry vs. our debt cost is extraordinary.',
+    trap:'Worst Sharpe of the equity strategies at 0.350 vs. Group D\'s 0.450. CAPM says unsystematic risk earns zero premium. σ = 28% is double the market for a worse risk-adjusted return. This is the Chapter 11 lesson.',
+    hardball:[
+      '"Chapter 11 says unsystematic risk is the one risk investors get zero compensation for — because diversification eliminates it for free. You are holding five stocks. Walk me through exactly how much unsystematic risk you are carrying, and explain why I should pay for it."',
+      '"Your σ is 28% — double the market and double Group D\'s index ETF. At what number of stocks does σ converge to market risk? Why did you stop at five?"',
+      '"Name the five stocks. What is the single-stock bankruptcy risk on each position? If one goes to zero, what is the dollar loss and how does that affect our debt covenants?"',
+      '"Group D owns 500 companies for the same IPS violation. You own five. Group D has lower σ, higher diversification, and comparable E(R). Make the case for why I should take more risk for the same governance headache."',
+      '"You cannot hold to maturity — stocks have no maturity. If we need $300M for M&A and your portfolio is down 30% on a bad earnings call, what happens?"',
+    ]
+  }
+];
+
+const ANSWER_KEY_DIMENSIONS = ['Counterparty Risk', 'Duration / Liquidity', 'Asset Class', 'IPS Compliance', 'Debt Carry Analysis', 'Growth Company Fit'];
+const ANSWER_KEY_DATA = [
+  ['counterparty', 'durationNote', 'assetClass', 'ipsNote', 'carryNote', 'growthNote']
+];
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  // Close mobile
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  window.scrollTo(0, 0);
+}
+
+function toggleMobile() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// ═══════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════
+let timerSec = 240, timerInterval = null, timerRunning = false;
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSec / 60);
+  const s = timerSec % 60;
+  const el = document.getElementById('timerDisplay');
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.className = 'timer-display';
+  if (timerRunning && timerSec <= 0) el.classList.add('done');
+  else if (timerRunning && timerSec <= 30) el.classList.add('warning');
+  else if (timerRunning) el.classList.add('running');
+}
+
+function timerStart() {
+  const btn = document.getElementById('timerStartBtn');
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false;
+    btn.textContent = '▶ Start'; btn.className = 'timer-btn primary';
+  } else if (timerSec > 0) {
+    timerRunning = true;
+    btn.textContent = '⏸ Pause'; btn.className = 'timer-btn warn';
+    timerInterval = setInterval(() => {
+      if (timerSec > 0) { timerSec--; updateTimerDisplay(); }
+      else { clearInterval(timerInterval); timerRunning = false; btn.textContent = '▶ Start'; btn.className = 'timer-btn primary'; }
+    }, 1000);
+    updateTimerDisplay();
+  }
+}
+
+function timerReset() {
+  clearInterval(timerInterval); timerRunning = false;
+  timerSec = 240; updateTimerDisplay();
+  document.getElementById('timerStartBtn').textContent = '▶ Start';
+  document.getElementById('timerStartBtn').className = 'timer-btn primary';
+}
+
+function setTimer(sec) {
+  clearInterval(timerInterval); timerRunning = false;
+  timerSec = sec; updateTimerDisplay();
+  document.getElementById('timerStartBtn').textContent = '▶ Start';
+  document.getElementById('timerStartBtn').className = 'timer-btn primary';
+}
+
+// ═══════════════════════════════════════
+// STRATEGIES
+// ═══════════════════════════════════════
+let currentGroup = 0;
+let currentHardball = 0;
+
+function selectGroup(i, el) {
+  currentGroup = i;
+  document.querySelectorAll('#groupTabs .group-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderStrategy();
+}
+
+function selectHardball(i, el) {
+  currentHardball = i;
+  document.querySelectorAll('#hardballTabs .group-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderHardball();
+}
+
+function renderStrategy() {
+  const g = GROUPS[currentGroup];
+  const Rf = 4.2, mrp = 6.3;
+  const sharpe = ((g.er - Rf) / g.sigma).toFixed(3);
+  const capm = (Rf + g.beta * mrp).toFixed(2);
+  const aboveSml = g.er >= parseFloat(capm);
+  const ipsOk = Object.values(g.ips).every(v => v);
+  const ipsCount = Object.values(g.ips).filter(v => v).length;
+  const carryPct = (g.er - 5.0);
+  const carryPos = carryPct >= 0;
+  const sharpeColor = parseFloat(sharpe) >= 0.4 ? 'var(--green)' : parseFloat(sharpe) >= 0.2 ? 'var(--amber)' : 'var(--red)';
+  const maxSharpe = 0.457;
+  const sharpeWidth = Math.min((parseFloat(sharpe) / maxSharpe) * 100, 100);
+
+  document.getElementById('strategyDetail').innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--navy);line-height:1.2;">Group ${g.letter}: ${g.name}</div>
+          <div style="font-size:0.8rem;color:var(--text-2);margin-top:0.25rem;font-style:italic;">${g.sub}</div>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+          <span class="badge ${ipsOk ? 'badge-green' : ipsCount >= 3 ? 'badge-amber' : 'badge-red'}">${g.ipsLabel}</span>
+          <span class="badge badge-navy">${carryPos ? '🟢' : '🔴'} Carry ${g.carry}</span>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val">${g.er}%</div><div class="stat-label">E(R)</div></div>
+        <div class="stat-box"><div class="stat-val">${g.sigma}%</div><div class="stat-label">Sigma σ</div></div>
+        <div class="stat-box"><div class="stat-val">${g.beta}</div><div class="stat-label">Beta β</div></div>
+        <div class="stat-box"><div class="stat-val">${g.dur > 0 ? g.dur + 'yr' : '∞'}</div><div class="stat-label">Duration</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:${sharpeColor};">${sharpe}</div><div class="stat-label">Sharpe</div></div>
+        <div class="stat-box"><div class="stat-val">${capm}%</div><div class="stat-label">CAPM</div></div>
+      </div>
+
+      <div class="sharpe-bar-wrap">
+        <div class="sharpe-bar-meta"><span>Sharpe vs. best (0.457 Group A)</span><span style="color:${sharpeColor};font-weight:500;">${sharpe}</span></div>
+        <div class="sharpe-track"><div class="sharpe-fill" style="width:${sharpeWidth}%;background:${sharpeColor};"></div></div>
+      </div>
+
+      <div class="dim-grid" style="margin-bottom:0.875rem;">
+        <div class="dim-box">
+          <div class="dim-label">Asset Class</div>
+          <div class="dim-val">${g.assetClass}</div>
+        </div>
+        <div class="dim-box">
+          <div class="dim-label">Duration / Liquidity</div>
+          <div class="dim-val">${g.durationNote}</div>
+        </div>
+        <div class="dim-box">
+          <div class="dim-label">Counterparty Risk</div>
+          <div class="dim-val">${g.counterparty}</div>
+        </div>
+        <div class="dim-box">
+          <div class="dim-label">Debt Carry (vs. 5%)</div>
+          <div class="dim-val ${carryPos ? 'pos' : 'neg'}">${g.carry} · ${g.carryDollar}</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:0.75rem;">
+        <div class="card-title" style="margin-bottom:0.5rem;">IPS Compliance</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">
+          <div class="ips-rule" style="padding:0.5rem 0;"><div class="rule-icon ${g.ips.ig?'rule-yes':'rule-no'}">${g.ips.ig?'✓':'✗'}</div><div class="rule-body"><strong style="font-size:0.78rem;">IG Credit Only</strong></div></div>
+          <div class="ips-rule" style="padding:0.5rem 0;"><div class="rule-icon ${g.ips.dur2?'rule-yes':'rule-no'}">${g.ips.dur2?'✓':'✗'}</div><div class="rule-body"><strong style="font-size:0.78rem;">Duration ≤ 2 yrs</strong></div></div>
+          <div class="ips-rule" style="padding:0.5rem 0;border-bottom:none;"><div class="rule-icon ${g.ips.noEq?'rule-yes':'rule-no'}">${g.ips.noEq?'✓':'✗'}</div><div class="rule-body"><strong style="font-size:0.78rem;">No Equities</strong></div></div>
+          <div class="ips-rule" style="padding:0.5rem 0;border-bottom:none;"><div class="rule-icon ${g.ips.noDeriv?'rule-yes':'rule-no'}">${g.ips.noDeriv?'✓':'✗'}</div><div class="rule-body"><strong style="font-size:0.78rem;">No Derivatives</strong></div></div>
+        </div>
+      </div>
+
+      <div class="thesis-bull">
+        <span class="thesis-label" style="color:var(--green);">Bull Case — Best Argument</span>
+        ${g.thesis}
+      </div>
+      <div class="thesis-trap">
+        <span class="thesis-label" style="color:var(--red);">The Trap — What the CFO Will Exploit</span>
+        ${g.trap}
+      </div>
+    </div>
+  `;
+}
+
+function renderHardball() {
+  const g = GROUPS[currentHardball];
+  document.getElementById('hardballGroupQs').innerHTML = g.hardball.map(q => `<div class="hardball-q">${q}</div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// CALCULATOR
+// ═══════════════════════════════════════
+const Rf = 4.2, Rm = 10.5, mrp = 6.3, wacc = 8.0, coupon = 5.0, size = 500;
+
+function recalc() {
+  const er = parseFloat(document.getElementById('inp_er').value) || 0;
+  const sigma = parseFloat(document.getElementById('inp_sigma').value) || 0.01;
+  const beta = parseFloat(document.getElementById('inp_beta').value) || 0;
+  const dur = parseFloat(document.getElementById('inp_dur').value) || 0;
+
+  const sharpe = ((er - Rf) / sigma);
+  const capmReq = Rf + beta * mrp;
+  const aboveSml = er >= capmReq;
+  const aboveWacc = er >= wacc;
+  const aboveCoupon = er >= coupon;
+  const carryPct = er - coupon;
+  const carryDollar = carryPct * size / 100;
+  const durLoss = dur * 0.01 * size;
+  const sigmaDollar = sigma / 100 * size;
+  const durIpsOk = dur <= 2 || dur === 0;
+  const sigmaIpsOk = sigma <= 8;
+
+  const set = (id, val, cls='neutral') => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = val; el.className = 'result-val ' + cls; }
+  };
+
+  set('r_sharpe', sharpe.toFixed(3), sharpe >= 0.3 ? 'good' : sharpe >= 0.1 ? 'neutral' : 'bad');
+  set('r_capm', capmReq.toFixed(2) + '%', 'neutral');
+  set('r_sml', aboveSml ? 'Above SML — favorable' : 'Below SML — underperforming', aboveSml ? 'good' : 'bad');
+  set('r_wacc', er.toFixed(1) + '% vs 8.0% — ' + (aboveWacc ? 'BEATS WACC' : 'BELOW WACC'), aboveWacc ? 'good' : 'bad');
+  set('r_carry', er.toFixed(1) + '% vs 5.0% — ' + (aboveCoupon ? 'Positive carry' : 'Negative carry'), aboveCoupon ? 'good' : 'bad');
+  set('r_carry_d', (carryDollar >= 0 ? '+' : '') + carryDollar.toFixed(1) + 'M / yr', carryDollar >= 0 ? 'good' : 'bad');
+  set('r_dur', dur > 0 ? '−$' + durLoss.toFixed(1) + 'M (Dur ' + dur + ' × 1% × $500M)' : 'N/A (no duration)', dur > 0 && durLoss > 20 ? 'bad' : dur > 0 ? 'neutral' : 'neutral');
+  set('r_sigma_d', '−$' + sigmaDollar.toFixed(1) + 'M (1-sigma event)', sigmaDollar > 50 ? 'bad' : sigmaDollar > 20 ? 'neutral' : 'good');
+  set('r_ips', sigmaIpsOk ? 'YES — within 8% cap' : 'NO — exceeds 8% cap', sigmaIpsOk ? 'good' : 'bad');
+  set('r_dur_ips', durIpsOk ? 'YES — within 2-yr limit' : 'NO — exceeds 2-yr limit', durIpsOk ? 'good' : 'bad');
+}
+
+function fillGroup(i) {
+  const g = GROUPS[i];
+  document.getElementById('inp_er').value = g.er;
+  document.getElementById('inp_sigma').value = g.sigma;
+  document.getElementById('inp_beta').value = g.beta;
+  document.getElementById('inp_dur').value = g.dur;
+  recalc();
+}
+
+// ═══════════════════════════════════════
+// COMPARISON — SHARPE BARS
+// ═══════════════════════════════════════
+function renderSharpeBars() {
+  const Rf = 4.2;
+  const sharpes = GROUPS.map(g => ({ letter: g.letter, name: g.name.replace('(Hold to Maturity)','(HTM)'), val: (g.er - Rf) / g.sigma }));
+  sharpes.sort((a, b) => b.val - a.val);
+  const colors = ['#2A7A52', '#1A5FAB', '#C9963A', '#7C3AED', '#C94A38'];
+  const maxVal = Math.max(...sharpes.map(s => s.val));
+  document.getElementById('sharpeBars').innerHTML = sharpes.map((s, i) => `
+    <div style="margin-bottom:0.875rem;">
+      <div class="sharpe-bar-meta">
+        <span><strong>Group ${s.letter}</strong> · ${s.name}</span>
+        <span style="color:${colors[i]};font-weight:600;">${s.val.toFixed(3)}</span>
+      </div>
+      <div class="sharpe-track">
+        <div class="sharpe-fill" style="width:${(s.val/maxVal*100).toFixed(1)}%;background:${colors[i]};"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// ANSWER KEY
+// ═══════════════════════════════════════
+function renderAnswerKey() {
+  const dims = [
+    { key: 'counterparty', label: 'Counterparty Risk' },
+    { key: 'durationNote', label: 'Duration & Liquidity' },
+    { key: 'assetClass', label: 'Asset Class' },
+    { key: 'ipsNote', label: 'IPS Compliance' },
+    { key: 'carryNote', label: 'Debt Carry Analysis' },
+    { key: 'growthNote', label: 'Growth Company Fit' },
+  ];
+
+  document.getElementById('answerKeyContent').innerHTML = GROUPS.map(g => `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Group ${g.letter} — ${g.name}</div>
+        <span class="badge ${Object.values(g.ips).every(v=>v) ? 'badge-green' : 'badge-red'}">${g.ipsLabel}</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="key-table">
+          <thead><tr><th style="width:160px;">Dimension</th><th>Answer / Teaching Point</th></tr></thead>
+          <tbody>
+            ${dims.map(d => `<tr><td>${d.label}</td><td style="font-family:'Inter',sans-serif;font-size:0.79rem;color:var(--text);line-height:1.5;">${g[d.key]}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${g.letter === 'E' ? `<div class="teaching-moment" style="margin-top:1rem;"><strong>Chapter 11 Key Lesson:</strong> Group E's σ of 28% is double the market's 14%. That excess σ is almost entirely unsystematic (firm-specific) risk. CAPM says this risk earns zero expected return premium — investors who hold a diversified portfolio can eliminate it for free. Group E's Sharpe (0.350) is lower than Group D's (0.450) despite a 3.5% higher E(R). That is the cost of underdiversification made visible in a single number.</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+renderStrategy();
+renderHardball();
+recalc();
+renderSharpeBars();
+renderAnswerKey();
+updateTimerDisplay();
+</script>
+</body>
+</html>
